@@ -7,7 +7,7 @@ listening agent.
 Installation
 ~~~~~~~~~~~~
 
-``pip install``
+``pip install pySqsListener``
 
 Usage
 ~~~~~
