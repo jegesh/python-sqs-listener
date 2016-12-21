@@ -2,3 +2,6 @@ venv
 .idea
 *.pyc
 .DS_Store
+build
+dist
+pySqsListener.egg-info
