@@ -3,8 +3,8 @@ script for running sqs listener
 
 Created December 21st, 2016
 @author: Yaakov Gesher
-@version: 0.1.0
-@license: Creative Commons (attribution)
+@version: 0.2.3
+@license: Apache
 """
 
 # ================
@@ -15,6 +15,7 @@ import boto3
 import json
 import time
 import os, sys
+from sqs_launcher import SqsLauncher
 from abc import ABCMeta, abstractmethod
 
 # ================
@@ -68,12 +69,15 @@ class SqsListener(object):
                 for m in messages['Messages']:
                     receipt_handle = m['ReceiptHandle']
                     m_body = m['Body']
+                    message_attribs = None
                     attribs = None
                     params_dict = json.loads(m_body)
                     if 'MessageAttributes' in m:
-                        attribs = m['MessageAttributes']
+                        message_attribs= m['MessageAttributes']
+                    if 'Attributes' in m:
+                        attribs = m['Attributes']
                     try:
-                        self.handle_message(params_dict, m['Attributes'], attribs)
+                        self.handle_message(params_dict, message_attribs, attribs)
                         sqs.delete_message(
                             QueueUrl=qurl,
                             ReceiptHandle=receipt_handle
@@ -82,27 +86,11 @@ class SqsListener(object):
                         print repr(ex)
                         if self._error_queue_name:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
+
                             print "Pushing exception to error queue"
-
-                            sqs = boto3.client('sqs')
-
-                            # create queue if necessary
-                            qs = sqs.get_queue_url(QueueName=self._error_queue_name,
-                                                   QueueOwnerAWSAccountId=os.environ.get('AWS_ACCOUNT_ID', None))
-                            if 'QueueUrl' not in qs:
-                                q = sqs.create_queue(
-                                    QueueName=self._error_queue_name,
-                                    Attributes={
-                                        'VisibilityTimeout': self._error_queue_visibility_timeout  # 10 minutes
-                                    }
-                                )
-                                qurl = q['QueueUrl']
-                            else:
-                                qurl = qs['QueueUrl']
-
-                            sqs.send_message(
-                                QueueUrl=qurl,
-                                MessageBody={
+                            error_launcher = SqsLauncher(self._error_queue_name, True)
+                            error_launcher.launch_message(
+                                {
                                     'exception_type': str(exc_type),
                                     'error_message': str(ex.args)
                                 }

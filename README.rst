@@ -1,20 +1,21 @@
 AWS SQS Listener
 ----------------
 
-This package takes care of the boilerplate involved in creating an SQS
-listening agent.
+This package takes care of the boilerplate involved in listening to an SQS
+queue, as well as sending messages to a queue.
 
 Installation
 ~~~~~~~~~~~~
 
 ``pip install pySqsListener``
 
-Usage
-~~~~~
+Listening to a queue
+~~~~~~~~~~~~~~~~~~~~
 
-| Using the package is very straightforward - just inherit from the
-  ``SqsListener`` class and implement the
-| ``handle_message()`` method.
+| Using the listener is very straightforward - just inherit from the
+  ``SqsListener`` class and implement the ``handle_message()`` method.
+  The queue will be created at runtime if it doesn't already exist.
+  You can also specify an error queue to automatically push any errors to.
 
 Here is a basic code sample:
 
@@ -23,6 +24,7 @@ Here is a basic code sample:
 ::
 
     from sqs_listener import SqsListener
+
     class MyListener(SqsListener):
         def handle_message(self, body, attributes, messages_attributes):
             run_my_function(body['param1'], body['param2']
@@ -42,7 +44,29 @@ Here is a basic code sample:
     error_listener = MyErrorListener('my-error-queue')
     error_listener.listen()
 
-**Notes**
+Sending messages
+~~~~~~~~~~~~~~~~
+
+| In order to send a message, instantiate an `SqsLauncher` with the name of the queue.  By default an exception will
+  be raised if the queue doesn't exist, but it can be created automatically if the `create_queue` parameter is
+  set to true.  In such a case, there's also an option to set the newly created queue's `VisibilityTimeout` via the
+  third parameter.
+
+| After instantiation, use the `launch_message()` method to send the message.  The message body should be a `dict`,
+  and additional kwargs can be specified as stated in the [SQS docs](http://boto3.readthedocs.io/en/latest/reference/services/sqs.html#SQS.Client.send_message).
+  The method returns the response from SQS.
+
+**Launcher Example**
+
+::
+
+    from sqs_launcher import SqsLauncher
+
+    launcher = SqsLauncher('my-queue')
+    response = launcher.launch_message({'param1': 'hello', 'param2': 'world'})
+
+Important Notes
+~~~~~~~~~~~~~~~
 
 -  The environment variable ``AWS_ACCOUNT_ID`` must be set, in addition
    to the environment having valid AWS credentials (via environment variables or a credentials file)
