@@ -52,7 +52,7 @@ Running as a Daemon
 |
 | The sample_daemon.py file in the source root folder provides a clear example for achieving this.  Using this example,
   you can run the listener as a daemon with the command ``python sample_daemon.py start``.  Similarly, the command
-  ``python sample_daemon.py stop`` will stop the process.
+  ``python sample_daemon.py stop`` will stop the process.  You'll most likely need to run the start script using ``sudo``.
 |
 
 Logging in daemon mode
