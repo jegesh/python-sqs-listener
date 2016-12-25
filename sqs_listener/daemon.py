@@ -16,11 +16,12 @@ class Daemon:
     Usage: subclass the Daemon class and override the run() method
     """
 
-    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/stdout', stderr='/dev/stderr'):
+    def __init__(self, pidfile, overwrite=False, stdout='/dev/stdout', stderr='/dev/stderr', stdin='/dev/null'):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
         self.pidfile = pidfile
+        self.overwrite_output = overwrite
 
     def daemonize(self):
         """
@@ -87,6 +88,12 @@ class Daemon:
             sys.stderr.write(message % self.pidfile)
             sys.exit(1)
 
+        # wipe logs if necessary
+        if self.overwrite_output:
+            out_file = open(self.stdout, 'w')
+            out_file.close()
+            err_file = open(self.stderr, 'w')
+            err_file.close()
         # Start the daemon
         self.daemonize()
         self.run()
