@@ -16,10 +16,8 @@ Listening to a queue
   ``SqsListener`` class and implement the ``handle_message()`` method.
   The queue will be created at runtime if it doesn't already exist.
   You can also specify an error queue to automatically push any errors to.
-  By default the listener runs in the current process, but it will run as a Unix daemon if the
-  parameter is set to `True` in the `listen()` method.
 
-Here is a basic code sample:
+| Here is a basic code sample:
 
 | **Standard Listener**
 
@@ -32,7 +30,7 @@ Here is a basic code sample:
             run_my_function(body['param1'], body['param2']
 
     listener = MyListener('my-message-queue', 'my-error-queue')
-    listener.listen(True)
+    listener.listen()
 
 **Error Listener**
 
@@ -45,6 +43,16 @@ Here is a basic code sample:
 
     error_listener = MyErrorListener('my-error-queue')
     error_listener.listen()
+
+Running as a Daemon
+~~~~~~~~~~~~~~~~~~~
+
+| Typically, in a production environment, you'll want to listen to an SQS queue with a daemonized process.
+  This can be achieved easily by inheriting from the package's `Daemon` class and overriding the `run()` method.
+|
+| The sample_daemon.py file in the source root folder provides a clear example for achieving this.  Using this example,
+  you can run the listener as a daemon with the command `python sample_daemon.py start`.  Similarly, the command
+  `python sample_daemon.py stop` will stop the process.
 
 Sending messages
 ~~~~~~~~~~~~~~~~

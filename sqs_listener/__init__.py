@@ -79,7 +79,7 @@ class SqsListener(object):
                     attribs = None
                     params_dict = json.loads(m_body)
                     if 'MessageAttributes' in m:
-                        message_attribs= m['MessageAttributes']
+                        message_attribs = m['MessageAttributes']
                     if 'Attributes' in m:
                         attribs = m['Attributes']
                     try:
