@@ -36,7 +36,7 @@ class SqsLauncher(object):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set')
         self._client = boto3.client('sqs')
         self._queue_name = queue
-        queue_data = self._client.url.get_queue_url(QueueName=queue,
+        queue_data = self._client.get_queue_url(QueueName=queue,
                      QueueOwnerAWSAccountId=os.environ.get('AWS_ACCOUNT_ID', None))
         if 'QueueUrl' in queue_data:
             self._queue_url = queue_data['QueueUrl']
@@ -60,6 +60,7 @@ class SqsLauncher(object):
                         See http://boto3.readthedocs.io/en/latest/reference/services/sqs.html#SQS.Client.send_message for more information
         :return: (dict) the message response from SQS
         """
+        print "Sending message to queue " + self._queue_name
         if not kwargs:
             return self._client.send_message(
                 QueueUrl=self._queue_url,

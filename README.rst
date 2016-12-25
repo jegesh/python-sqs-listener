@@ -16,6 +16,8 @@ Listening to a queue
   ``SqsListener`` class and implement the ``handle_message()`` method.
   The queue will be created at runtime if it doesn't already exist.
   You can also specify an error queue to automatically push any errors to.
+  By default the listener runs in the current process, but it will run as a Unix daemon if the
+  parameter is set to `True` in the `listen()` method.
 
 Here is a basic code sample:
 
@@ -30,7 +32,7 @@ Here is a basic code sample:
             run_my_function(body['param1'], body['param2']
 
     listener = MyListener('my-message-queue', 'my-error-queue')
-    listener.listen()
+    listener.listen(True)
 
 **Error Listener**
 
@@ -51,7 +53,7 @@ Sending messages
   be raised if the queue doesn't exist, but it can be created automatically if the `create_queue` parameter is
   set to true.  In such a case, there's also an option to set the newly created queue's `VisibilityTimeout` via the
   third parameter.
-
+|
 | After instantiation, use the `launch_message()` method to send the message.  The message body should be a `dict`,
   and additional kwargs can be specified as stated in the [SQS docs](http://boto3.readthedocs.io/en/latest/reference/services/sqs.html#SQS.Client.send_message).
   The method returns the response from SQS.
