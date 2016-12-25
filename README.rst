@@ -56,7 +56,7 @@ Running as a Daemon
 |
 
 Logging in daemon mode
-######################  
+######################
 
 | By default, the output and error messages of the listener are pushed to stdout and stderr, respectively.  This can
   be customized by using the optional parameters of the ``Daemon`` constructor.  For instance, the following
@@ -78,7 +78,8 @@ Sending messages
   third parameter.
 |
 | After instantiation, use the ``launch_message()`` method to send the message.  The message body should be a ``dict``,
-  and additional kwargs can be specified as stated in the [SQS docs](http://boto3.readthedocs.io/en/latest/reference/services/sqs.html#SQS.Client.send_message).
+  and additional kwargs can be specified as stated in the `SQS docs
+  <http://boto3.readthedocs.io/en/latest/reference/services/sqs.html#SQS.Client.send_message>`_.
   The method returns the response from SQS.
 
 **Launcher Example**
