@@ -53,8 +53,10 @@ Running as a Daemon
 | The sample_daemon.py file in the source root folder provides a clear example for achieving this.  Using this example,
   you can run the listener as a daemon with the command ``python sample_daemon.py start``.  Similarly, the command
   ``python sample_daemon.py stop`` will stop the process.
+|
 
-**Logging in daemon mode**
+Logging in daemon mode
+######################  
 
 | By default, the output and error messages of the listener are pushed to stdout and stderr, respectively.  This can
   be customized by using the optional parameters of the ``Daemon`` constructor.  For instance, the following
