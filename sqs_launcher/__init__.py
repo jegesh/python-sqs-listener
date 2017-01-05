@@ -36,11 +36,15 @@ class SqsLauncher(object):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set')
         self._client = boto3.client('sqs')
         self._queue_name = queue
-        queue_data = self._client.get_queue_url(QueueName=queue,
-                     QueueOwnerAWSAccountId=os.environ.get('AWS_ACCOUNT_ID', None))
-        if 'QueueUrl' in queue_data:
-            self._queue_url = queue_data['QueueUrl']
-        else:
+        queues = self._client.list_queues()
+        exists = False
+        for q in queues['QueueUrls']:
+            qname = q.split('/')[-1]
+            if qname == self._queue_name:
+                exists = True
+                self._queue_url = q
+
+        if not exists:
             if create_queue:
                 q = self._client.create_queue(
                     QueueName=self._queue_name,
