@@ -80,7 +80,12 @@ class SqsListener(object):
                     m_body = m['Body']
                     message_attribs = None
                     attribs = None
-                    params_dict = json.loads(m_body)
+
+                    # catch problems with malformed JSON, usually a result of someone writing poor JSON directly in the AWS console
+                    try:
+                        params_dict = json.loads(m_body)
+                    except:
+                        continue
                     if 'MessageAttributes' in m:
                         message_attribs = m['MessageAttributes']
                     if 'Attributes' in m:
