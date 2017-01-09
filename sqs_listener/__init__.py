@@ -75,6 +75,7 @@ class SqsListener(object):
                 QueueUrl=self._queue_url
             )
             if 'Messages' in messages:
+                print str(len(messages['Messages'])) + " messages received"
                 for m in messages['Messages']:
                     receipt_handle = m['ReceiptHandle']
                     m_body = m['Body']
