@@ -85,6 +85,7 @@ Logging
     sh.setFormatter(formatter)
     logger.addHandler(sh)
 
+|
 | Or to a log file:
 
 ::
