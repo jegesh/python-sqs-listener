@@ -24,6 +24,7 @@ from abc import ABCMeta, abstractmethod
 # start class
 # ================
 
+sqs_logger = logging.getLogger('sqs_listener')
 
 class SqsListener(object):
     __metaclass__ = ABCMeta
@@ -75,7 +76,7 @@ class SqsListener(object):
                 QueueUrl=self._queue_url
             )
             if 'Messages' in messages:
-                print str(len(messages['Messages'])) + " messages received"
+                sqs_logger.info( str(len(messages['Messages'])) + " messages received")
                 for m in messages['Messages']:
                     receipt_handle = m['ReceiptHandle']
                     m_body = m['Body']
@@ -105,11 +106,11 @@ class SqsListener(object):
                                 ReceiptHandle=receipt_handle
                             )
                     except Exception, ex:
-                        print repr(ex)
+                        sqs_logger.warning( repr(ex))
                         if self._error_queue_name:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
 
-                            print "Pushing exception to error queue"
+                            sqs_logger.info( "Pushing exception to error queue")
                             error_launcher = SqsLauncher(self._error_queue_name, True)
                             error_launcher.launch_message(
                                 {
@@ -122,7 +123,7 @@ class SqsListener(object):
                 time.sleep(self._poll_interval)
 
     def listen(self):
-            print "Listening to queue " + self._queue_name
+            sqs_logger.info( "Listening to queue " + self._queue_name)
             self._start_listening()
 
     def _prepare_logger(self):

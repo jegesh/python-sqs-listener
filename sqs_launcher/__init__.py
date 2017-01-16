@@ -14,11 +14,13 @@ Created December 22nd, 2016
 import boto3
 import json
 import os
+import logging
 
 # ================
 # start class
 # ================
 
+sqs_logger = logging.getLogger('sqs_listener')
 
 class SqsLauncher(object):
 
@@ -64,7 +66,7 @@ class SqsLauncher(object):
                         See http://boto3.readthedocs.io/en/latest/reference/services/sqs.html#SQS.Client.send_message for more information
         :return: (dict) the message response from SQS
         """
-        print "Sending message to queue " + self._queue_name
+        sqs_logger.info("Sending message to queue " + self._queue_name)
         if not kwargs:
             return self._client.send_message(
                 QueueUrl=self._queue_url,
