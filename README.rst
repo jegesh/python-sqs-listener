@@ -63,19 +63,43 @@ Running as a Daemon
   ``python sample_daemon.py stop`` will stop the process.  You'll most likely need to run the start script using ``sudo``.
 |
 
-Logging in daemon mode
-######################
+Logging
+~~~~~~~
 
-| By default, the output and error messages of the listener are pushed to stdout and stderr, respectively.  This can
-  be customized by using the optional parameters of the ``Daemon`` constructor.  For instance, the following
-  example sets the standard output and error messages to be written to local logs, which are wiped clean every
-  time the daemon is started.
+| The listener and launcher instances push all their messages to a ``logger`` instance, called 'sqs_listener'.
+  In order to view the messages, the logger needs to be redirected to ``stdout`` or to a log file.
+|
+| For instance:
 
 ::
 
-    if __name__ == "__main__":
-        daemon = MyDaemon('/var/run/sqs_daemon.pid', True, 'sqs_out.log', 'sqs_err.log')
-        ...
+    logger = logging.getLogger('sqs_listener')
+    logger.setLevel(logging.INFO)
+
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(logging.INFO)
+
+    formatstr = '[%(asctime)s - %(name)s - %(levelname)s]  %(message)s'
+    formatter = logging.Formatter(formatstr)
+
+    sh.setFormatter(formatter)
+    logger.addHandler(sh)
+
+| Or to a log file:
+
+::
+
+    logger = logging.getLogger('sqs_listener')
+    logger.setLevel(logging.INFO)
+
+    sh = logging.FileHandler('mylog.log')
+    sh.setLevel(logging.INFO)
+
+    formatstr = '[%(asctime)s - %(name)s - %(levelname)s]  %(message)s'
+    formatter = logging.Formatter(formatstr)
+
+    sh.setFormatter(formatter)
+    logger.addHandler(sh)
 
 Sending messages
 ~~~~~~~~~~~~~~~~
