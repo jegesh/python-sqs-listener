@@ -105,7 +105,7 @@ class SqsListener(object):
                                 QueueUrl=self._queue_url,
                                 ReceiptHandle=receipt_handle
                             )
-                    except Exception, ex:
+                    except Exception as ex:
                         sqs_logger.warning( repr(ex))
                         if self._error_queue_name:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
