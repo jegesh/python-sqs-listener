@@ -45,7 +45,7 @@ Here is a basic code sample:
     error_listener.listen()
 
 
-The options available as ``kwargs`` are as follows:
+| The options available as ``kwargs`` are as follows:
  - error_queue (str) - name of queue to push errors.
  - force_delete (boolean) - delete the message received from the queue, whether or not the handler function is successful.  By default the message is deleted only if the handler function returns with no exceptions
  - interval (int) - number of seconds in between polls. Set to 60 by default
