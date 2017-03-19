@@ -46,11 +46,12 @@ Here is a basic code sample:
 
 
 | The options available as ``kwargs`` are as follows:
- - error_queue (str) - name of queue to push errors.
- - force_delete (boolean) - delete the message received from the queue, whether or not the handler function is successful.  By default the message is deleted only if the handler function returns with no exceptions
- - interval (int) - number of seconds in between polls. Set to 60 by default
- - visibility_timeout (str) - Number of seconds the message will be invisible ('in flight') after being read.  After this time interval it reappear in the queue if it wasn't deleted in the meantime.  Set to '600' (10 minutes) by default
- - error_visibility_timeout (str) - Same as previous argument, for the error queue.  Applicable only if the ``error_queue`` argument is set, and the queue doesn't already exist.
+
+- error_queue (str) - name of queue to push errors.
+- force_delete (boolean) - delete the message received from the queue, whether or not the handler function is successful.  By default the message is deleted only if the handler function returns with no exceptions
+- interval (int) - number of seconds in between polls. Set to 60 by default
+- visibility_timeout (str) - Number of seconds the message will be invisible ('in flight') after being read.  After this time interval it reappear in the queue if it wasn't deleted in the meantime.  Set to '600' (10 minutes) by default
+- error_visibility_timeout (str) - Same as previous argument, for the error queue.  Applicable only if the ``error_queue`` argument is set, and the queue doesn't already exist.
 
 Running as a Daemon
 ~~~~~~~~~~~~~~~~~~~
