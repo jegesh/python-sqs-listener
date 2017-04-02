@@ -87,6 +87,7 @@ class SqsListener(object):
                     try:
                         params_dict = json.loads(m_body)
                     except:
+                        sqs_logger.warning("Unable to parse message - JSON is not formatted properly")
                         continue
                     if 'MessageAttributes' in m:
                         message_attribs = m['MessageAttributes']
