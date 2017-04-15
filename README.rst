@@ -29,7 +29,7 @@ Here is a basic code sample:
         def handle_message(self, body, attributes, messages_attributes):
             run_my_function(body['param1'], body['param2']
 
-    listener = MyListener('my-message-queue', error_queue='my-error-queue')
+    listener = MyListener('my-message-queue', error_queue='my-error-queue', region_name='us-east-1')
     listener.listen()
 
 **Error Listener**
