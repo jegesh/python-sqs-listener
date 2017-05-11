@@ -127,7 +127,8 @@ class SqsListener(object):
                                 ReceiptHandle=receipt_handle
                             )
                     except Exception as ex:
-                        sqs_logger.warning( repr(ex))
+                        # need exception logtype to log stack trace
+                        sqs_logger.exception(ex)
                         if self._error_queue_name:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
 
