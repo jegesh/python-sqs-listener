@@ -42,6 +42,8 @@ class SqsListener(object):
         self._error_queue_name = kwargs['error_queue'] if 'error_queue' in kwargs else None
         self._error_queue_visibility_timeout = kwargs['error_visibility_timeout'] if 'error_visibility_timeout' in kwargs else '600'
         self._queue_url = None
+        self._message_attribute_names = kwargs['message_attribute_names'] if 'message_attribute_names' in kwargs else []
+        self._attribute_names = kwargs['attribute_names'] if 'attribute_names' in kwargs else []
         self._force_delete = kwargs['force_delete'] if 'force_delete' in kwargs else False
         self._region_name = kwargs['region_name'] if 'region_name' in kwargs else 'us-east-1'
         # must come last
@@ -93,7 +95,9 @@ class SqsListener(object):
         # TODO consider incorporating output processing from here: https://github.com/debrouwere/sqs-antenna/blob/master/antenna/__init__.py
         while True:
             messages = self._client.receive_message(
-                QueueUrl=self._queue_url
+                QueueUrl=self._queue_url,
+                MessageAttributeNames=self._message_attribute_names,
+                AttributeNames=self._attribute_names,
             )
             if 'Messages' in messages:
                 sqs_logger.info( str(len(messages['Messages'])) + " messages received")
