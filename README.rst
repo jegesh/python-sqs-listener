@@ -27,7 +27,7 @@ Here is a basic code sample:
 
     class MyListener(SqsListener):
         def handle_message(self, body, attributes, messages_attributes):
-            run_my_function(body['param1'], body['param2']
+            run_my_function(body['param1'], body['param2'])
 
     listener = MyListener('my-message-queue', error_queue='my-error-queue', region_name='us-east-1')
     listener.listen()
