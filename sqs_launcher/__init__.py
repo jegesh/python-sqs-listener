@@ -24,7 +24,7 @@ sqs_logger = logging.getLogger('sqs_listener')
 
 class SqsLauncher(object):
 
-    def __init__(self, queue, create_queue=False, visibility_timeout='600'):
+    def __init__(self, queue, create_queue=False, visibility_timeout='600', region_name=''):
         """
         :param queue: (str) name of queue to listen to
         :param create_queue (boolean) determines whether to create the queue if it doesn't exist.  If False, an
@@ -36,7 +36,8 @@ class SqsLauncher(object):
         """
         if not os.environ.get('AWS_ACCOUNT_ID', None):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set')
-        self._client = boto3.client('sqs')
+        self._region_name = region_name
+        self._client = boto3.client('sqs', region_name=self._region_name)
         self._queue_name = queue
         queues = self._client.list_queues()
         exists = False
