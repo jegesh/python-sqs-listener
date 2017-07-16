@@ -68,10 +68,14 @@ class SqsListener(object):
         # creation is idempotent, no harm in calling on a queue if it already exists.
         if not mainQueueExists:
             sqs_logger.warning("main queue not found, creating now")
+	    fifoQueue="false"
+	    if self._queue_name.endswith(".fifo"):
+		    fifoQueue="true"
             q = sqs.create_queue(
                 QueueName=self._queue_name,
                 Attributes={
-                    'VisibilityTimeout': self._queue_visibility_timeout  # 10 minutes
+                    'VisibilityTimeout': self._queue_visibility_timeout,  # 10 minutes
+		    'FifoQueue':fifoQueue
                 }
             )
             self._queue_url = q['QueueUrl']
