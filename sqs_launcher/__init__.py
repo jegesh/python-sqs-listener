@@ -12,6 +12,7 @@ Created December 22nd, 2016
 # ================
 
 import boto3
+import boto3.session
 import json
 import os
 import logging
@@ -36,7 +37,10 @@ class SqsLauncher(object):
         """
         if not os.environ.get('AWS_ACCOUNT_ID', None):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set')
-        self._client = boto3.client('sqs')
+        # new session for each instantiation
+        self._session = boto3.session.Session()
+        self._client = self._session.client('sqs')
+
         self._queue_name = queue
         queues = self._client.list_queues()
         exists = False
