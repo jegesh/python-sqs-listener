@@ -12,6 +12,7 @@ Created December 21st, 2016
 # ================
 
 import boto3
+import boto3.session
 import json
 import time
 import logging
@@ -51,7 +52,12 @@ class SqsListener(object):
 
 
     def _initialize_client(self):
-        sqs = boto3.client('sqs', region_name=self._region_name)
+        #sqs = boto3.client('sqs', region_name=self._region_name)
+
+        # new session for each instantiation
+        self._session = boto3.session.Session()
+        sqs = self._session.client('sqs', region_name=self._region_name)
+
         queues = sqs.list_queues()
         mainQueueExists = False
         errorQueueExists = False
