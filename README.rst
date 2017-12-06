@@ -57,7 +57,11 @@ Running as a Daemon
 ~~~~~~~~~~~~~~~~~~~
 
 | Typically, in a production environment, you'll want to listen to an SQS queue with a daemonized process.
-  This can be achieved easily by inheriting from the package's ``Daemon`` class and overriding the ``run()`` method.
+  The simplest way to do this is by running the listener in a detached process.  On a typical Linux distribution it might look   like this:
+  ``nohub python my_listener.py > listener.log &``
+  And saving the resulting process id for later (for stopping the listener via the ``kill`` command).
+|
+  A more complete implementation can be achieved easily by inheriting from the package's ``Daemon`` class and overriding the ``run()`` method.
 |
 | The sample_daemon.py file in the source root folder provides a clear example for achieving this.  Using this example,
   you can run the listener as a daemon with the command ``python sample_daemon.py start``.  Similarly, the command
