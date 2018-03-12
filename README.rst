@@ -52,6 +52,7 @@ Here is a basic code sample:
 - interval (int) - number of seconds in between polls. Set to 60 by default
 - visibility_timeout (str) - Number of seconds the message will be invisible ('in flight') after being read.  After this time interval it reappear in the queue if it wasn't deleted in the meantime.  Set to '600' (10 minutes) by default
 - error_visibility_timeout (str) - Same as previous argument, for the error queue.  Applicable only if the ``error_queue`` argument is set, and the queue doesn't already exist.
+- wait_time (int) - number of seconds in for long polls. Set to 0 by default to provide short polling.
 
 Running as a Daemon
 ~~~~~~~~~~~~~~~~~~~
