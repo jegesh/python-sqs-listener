@@ -42,7 +42,7 @@ class SqsLauncher(object):
         self._client = self._session.client('sqs')
 
         self._queue_name = queue
-        queues = self._client.list_queues()
+        queues = self._client.list_queues(QueueNamePrefix=self._queue_name)
         exists = False
         for q in queues['QueueUrls']:
             qname = q.split('/')[-1]

@@ -59,7 +59,7 @@ class SqsListener(object):
         self._session = boto3.session.Session()
         sqs = self._session.client('sqs', region_name=self._region_name)
 
-        queues = sqs.list_queues()
+        queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
         mainQueueExists = False
         errorQueueExists = False
         if 'QueueUrls' in queues:
