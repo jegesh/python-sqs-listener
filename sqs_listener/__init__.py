@@ -47,6 +47,7 @@ class SqsListener(object):
         self._attribute_names = kwargs['attribute_names'] if 'attribute_names' in kwargs else []
         self._force_delete = kwargs['force_delete'] if 'force_delete' in kwargs else False
         self._region_name = kwargs['region_name'] if 'region_name' in kwargs else 'us-east-1'
+        self._wait_time = kwargs['wait_time'] if 'wait_time' in kwargs else 0
         # must come last
         self._client = self._initialize_client()
 
@@ -113,10 +114,13 @@ class SqsListener(object):
     def _start_listening(self):
         # TODO consider incorporating output processing from here: https://github.com/debrouwere/sqs-antenna/blob/master/antenna/__init__.py
         while True:
+            # calling with WaitTimeSecconds of zero show the same behavior as
+            # not specifiying a wait time, ie: short polling
             messages = self._client.receive_message(
                 QueueUrl=self._queue_url,
                 MessageAttributeNames=self._message_attribute_names,
                 AttributeNames=self._attribute_names,
+                WaitTimeSeconds=self._wait_time,
             )
             if 'Messages' in messages:
                 sqs_logger.info( str(len(messages['Messages'])) + " messages received")
