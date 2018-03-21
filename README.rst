@@ -135,7 +135,9 @@ Important Notes
 ~~~~~~~~~~~~~~~
 
 -  The environment variable ``AWS_ACCOUNT_ID`` must be set, in addition
-   to the environment having valid AWS credentials (via environment variables or a credentials file)
+   to the environment having valid AWS credentials (via environment variables
+   or a credentials file) or if running in an aws ec2 instance a role attached
+   with the required permissions.
 -  For both the main queue and the error queue, if the queue doesn’t
    exist (in the specified region), it will be created at runtime.
 -  The error queue receives only two values in the message body: ``exception_type`` and ``error_message``. Both are of type ``str``
