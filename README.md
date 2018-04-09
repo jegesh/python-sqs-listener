@@ -133,6 +133,6 @@ response = launcher.launch_message({'param1': 'hello', 'param2': 'world'})
 *  The error queue receives only two values in the message body: ``exception_type`` and ``error_message``. Both are of type ``str``
 *  If the function that the listener executes involves connecting to a database, you should explicitly close the connection at the end of the function.  Otherwise, you're likely to get an error like this: ``OperationalError(2006, 'MySQL server has gone away')``
 
-###Contributing
+### Contributing
 
 Fork the repo and make a pull request.
