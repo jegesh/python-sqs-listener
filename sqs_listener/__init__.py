@@ -48,18 +48,20 @@ class SqsListener(object):
         self._attribute_names = kwargs['attribute_names'] if 'attribute_names' in kwargs else []
         self._force_delete = kwargs['force_delete'] if 'force_delete' in kwargs else False
         self._region_name = kwargs['region_name'] if 'region_name' in kwargs else 'us-east-1'
+        self._endpoint_name = kwargs['endpoint_name'] if 'endpoint_name' in kwargs else None
         self._wait_time = kwargs['wait_time'] if 'wait_time' in kwargs else 0
         # must come last
         self._client = self._initialize_client()
 
 
     def _initialize_client(self):
-        #sqs = boto3.client('sqs', region_name=self._region_name)
-
         # new session for each instantiation
         self._session = boto3.session.Session()
-        sqs = self._session.client('sqs', region_name=self._region_name)
+        ssl = True
+        if self._region_name == 'elasticmq':
+            ssl = False
 
+        sqs = self._session.client('sqs', region_name=self._region_name, endpoint_url=self._endpoint_name, use_ssl=ssl)
         queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
         mainQueueExists = False
         errorQueueExists = False
