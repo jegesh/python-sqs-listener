@@ -46,18 +46,17 @@ class SqsListener(object):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
         self._queue_name = queue
         self._queue_url = queue_url
-        self._poll_interval = kwargs["interval"] if 'interval' in kwargs else 60
-        self._queue_visibility_timeout = kwargs['visibility_timeout'] if 'visibility_timeout' in kwargs else '600'
-        self._error_queue_name = kwargs['error_queue'] if 'error_queue' in kwargs else None
-        self._error_queue_url = kwargs['error_queue_url'] if 'error_queue_url' in kwargs else None
-        self._error_queue_visibility_timeout = kwargs[
-            'error_visibility_timeout'] if 'error_visibility_timeout' in kwargs else '600'
-        self._message_attribute_names = kwargs['message_attribute_names'] if 'message_attribute_names' in kwargs else []
-        self._attribute_names = kwargs['attribute_names'] if 'attribute_names' in kwargs else []
-        self._force_delete = kwargs['force_delete'] if 'force_delete' in kwargs else False
-        self._region_name = kwargs['region_name'] if 'region_name' in kwargs else None
-        self._wait_time = kwargs['wait_time'] if 'wait_time' in kwargs else 0
-        self._max_number_of_messages = kwargs['max_number_of_messages'] if 'max_number_of_messages' in kwargs else 1
+        self._poll_interval = kwargs.get("interval", 60)
+        self._queue_visibility_timeout = kwargs.get('visibility_timeout', '600')
+        self._error_queue_name = kwargs.get('error_queue', None)
+        self._error_queue_url = kwargs.get('error_queue_url', None)
+        self._error_queue_visibility_timeout = kwargs.get( 'error_visibility_timeout', '600')
+        self._message_attribute_names = kwargs.get('message_attribute_names', [])
+        self._attribute_names = kwargs.get('attribute_names', [])
+        self._force_delete = kwargs.get('force_delete', False)
+        self._region_name = kwargs.get('region_name', None)
+        self._wait_time = kwargs.get('wait_time', 0)
+        self._max_number_of_messages = kwargs.get('max_number_of_messages', 1)
         # must come last
         self._client = self._initialize_client()
 
