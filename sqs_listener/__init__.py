@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import sys
+import threading
 import time
 from abc import ABCMeta, abstractmethod
 
@@ -58,6 +59,7 @@ class SqsListener(object):
         self._region_name = kwargs['region_name'] if 'region_name' in kwargs else None
         self._wait_time = kwargs['wait_time'] if 'wait_time' in kwargs else 0
         self._max_number_of_messages = kwargs['max_number_of_messages'] if 'max_number_of_messages' in kwargs else 1
+        self._stop_event = threading.Event()
         # must come last
         self._client = self._initialize_client()
 
@@ -114,9 +116,9 @@ class SqsListener(object):
 
     def _start_listening(self):
         # TODO consider incorporating output processing from here: https://github.com/debrouwere/sqs-antenna/blob/master/antenna/__init__.py
-        while True:
+        while not self._stop_event.wait(self._poll_interval):
             # calling with WaitTimeSeconds of zero show the same behavior as
-            # not specifiying a wait time, ie: short polling
+            # not specifying a wait time, ie: short polling
             messages = self._client.receive_message(
                 QueueUrl=self._queue_url,
                 MessageAttributeNames=self._message_attribute_names,
@@ -170,15 +172,15 @@ class SqsListener(object):
                                 }
                             )
 
-            else:
-                time.sleep(self._poll_interval)
-
     def listen(self):
         sqs_logger.info("Listening to queue " + self._queue_name)
         if self._error_queue_name:
             sqs_logger.info("Using error queue " + self._error_queue_name)
 
         self._start_listening()
+
+    def stop(self):
+        self._stop_event.set()
 
     def _prepare_logger(self):
         logger = logging.getLogger('eg_daemon')
