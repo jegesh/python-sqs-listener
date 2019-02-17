@@ -52,7 +52,7 @@ class SqsLauncher(object):
         if not queue_url:
             queues = self._client.list_queues(QueueNamePrefix=self._queue_name)
             exists = False
-            for q in queues['QueueUrls']:
+            for q in queues.get('QueueUrls', []):
                 qname = q.split('/')[-1]
                 if qname == self._queue_name:
                     exists = True
