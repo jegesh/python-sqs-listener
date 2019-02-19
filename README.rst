@@ -47,13 +47,16 @@ Here is a basic code sample:
 | The options available as ``kwargs`` are as follows:
 
 - error_queue (str) - name of queue to push errors.
-- error_queue_url - url of the queue to push errors.
 - force_delete (boolean) - delete the message received from the queue, whether or not the handler function is successful.  By default the message is deleted only if the handler function returns with no exceptions
 - interval (int) - number of seconds in between polls. Set to 60 by default
 - visibility_timeout (str) - Number of seconds the message will be invisible ('in flight') after being read.  After this time interval it reappear in the queue if it wasn't deleted in the meantime.  Set to '600' (10 minutes) by default
 - error_visibility_timeout (str) - Same as previous argument, for the error queue.  Applicable only if the ``error_queue`` argument is set, and the queue doesn't already exist.
 - wait_time (int) - number of seconds to wait for a message to arrive (for long polling). Set to 0 by default to provide short polling.
 - max_number_of_messages (int) - Max number of messages to receive from the queue. Set to 1 by default, max is 10
+- message_attribute_names (list) - message attributes by which to filter messages
+- attribute_names (list) - attributes by which to filter messages (see boto docs for difference between these two)
+- region_name (str) - AWS region name (defaults to `us-east-1`)
+
 
 Running as a Daemon
 ~~~~~~~~~~~~~~~~~~~
@@ -61,7 +64,7 @@ Running as a Daemon
 | Typically, in a production environment, you'll want to listen to an SQS queue with a daemonized process.
   The simplest way to do this is by running the listener in a detached process.  On a typical Linux distribution it might look   like this:
 |  
-  ``nohub python my_listener.py > listener.log &``
+  ``nohup python my_listener.py > listener.log &``
 |  And saving the resulting process id for later (for stopping the listener via the ``kill`` command).
 |
   A more complete implementation can be achieved easily by inheriting from the package's ``Daemon`` class and overriding the ``run()`` method.
