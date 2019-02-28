@@ -169,7 +169,7 @@ class SqsListener(object):
                             exc_type, exc_obj, exc_tb = sys.exc_info()
 
                             sqs_logger.info( "Pushing exception to error queue")
-                            error_launcher = SqsLauncher(self._error_queue_name, True)
+                            error_launcher = SqsLauncher(queue=self._error_queue_name, create_queue=True)
                             error_launcher.launch_message(
                                 {
                                     'exception_type': str(exc_type),
