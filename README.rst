@@ -55,7 +55,8 @@ Here is a basic code sample:
 - max_number_of_messages (int) - Max number of messages to receive from the queue. Set to 1 by default, max is 10
 - message_attribute_names (list) - message attributes by which to filter messages
 - attribute_names (list) - attributes by which to filter messages (see boto docs for difference between these two)
-- region_name (str) - AWS region name (defaults to `us-east-1`)
+- region_name (str) - AWS region name (defaults to ``us-east-1``)
+- queue_url (str) - overrides ``queue`` parameter. Mostly useful for getting around `this bug <https://github.com/aws/aws-cli/issues/1715>`_ in the boto library
 
 
 Running as a Daemon
