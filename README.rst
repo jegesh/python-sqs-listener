@@ -1,10 +1,10 @@
 AWS SQS Listener
 ----------------
 
-.. image:: https://img.shields.io/pypi/v/pySqsListener.svg
+.. image:: https://img.shields.io/pypi/v/pySqsListener.svg?style=popout
    :alt: PyPI
    :target: https://github.com/jegesh/python-sqs-listener
-.. image:: https://img.shields.io/pypi/pyversions/pySqsListener.svg
+.. image:: https://img.shields.io/pypi/pyversions/pySqsListener.svg?style=popout
    :alt: PyPI - Python Version
    :target: https://pypi.org/project/pySqsListener/
 
