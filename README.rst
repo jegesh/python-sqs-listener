@@ -1,8 +1,19 @@
 AWS SQS Listener
 ----------------
 
+.. image:: https://img.shields.io/pypi/v/pySqsListener.svg
+   :alt: PyPI
+   :target: https://github.com/jegesh/python-sqs-listener
+.. image:: https://img.shields.io/pypi/pyversions/pySqsListener.svg
+   :alt: PyPI - Python Version
+   :target: https://pypi.org/project/pySqsListener/
+
+
+
+
 This package takes care of the boilerplate involved in listening to an SQS
 queue, as well as sending messages to a queue.  Works with python 2.7 & 3.6+.
+
 Installation
 ~~~~~~~~~~~~
 
