@@ -35,9 +35,19 @@ class SqsListener(object):
         :param queue: (str) name of queue to listen to
         :param kwargs: options for fine tuning. see below
         """
-        if (not os.environ.get('AWS_ACCOUNT_ID', None) and
-                not ('iam-role' == boto3.Session().get_credentials().method)):
-            raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
+        aws_access_key = kwargs.get('aws_access_key', '')
+        aws_secret_key = kwargs.get('aws_secret_key', '')
+
+        if len(aws_access_key) != 0 and len(aws_secret_key) != 0:
+            boto3_session = boto3.Session(
+                aws_access_key_id=aws_access_key,
+                aws_secret_access_key=aws_secret_key
+            )
+        else:
+            if (not os.environ.get('AWS_ACCOUNT_ID', None) and
+                    not ('iam-role' == boto3.Session().get_credentials().method)):
+                raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
+
         self._queue_name = queue
         self._poll_interval = kwargs.get("interval", 60)
         self._queue_visibility_timeout = kwargs.get('visibility_timeout', '600')
@@ -52,7 +62,10 @@ class SqsListener(object):
         self._max_number_of_messages = kwargs.get('max_number_of_messages', 1)
 
         # must come last
-        self._session = boto3.session.Session()
+        if boto3_session:
+            self._session = boto3_session
+        else:
+            self._session = boto3.session.Session()
         self._region_name = kwargs.get('region_name', self._session.region_name)
         self._client = self._initialize_client()
 
@@ -133,6 +146,9 @@ class SqsListener(object):
                 MaxNumberOfMessages=self._max_number_of_messages
             )
             if 'Messages' in messages:
+
+                print(messages)
+                continue
                 sqs_logger.info("{} messages received".format(len(messages['Messages'])))
                 for m in messages['Messages']:
                     receipt_handle = m['ReceiptHandle']
