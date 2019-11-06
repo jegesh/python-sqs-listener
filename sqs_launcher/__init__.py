@@ -40,9 +40,6 @@ class SqsLauncher(object):
         """
         if not queue and not queue_url:
             raise ValueError('Either `queue` or `queue_url` should be provided.')
-        if (not os.environ.get('AWS_ACCOUNT_ID', None) and
-                not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role'])):
-            raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
         # new session for each instantiation
         self._session = boto3.session.Session()
         self._client = self._session.client('sqs')

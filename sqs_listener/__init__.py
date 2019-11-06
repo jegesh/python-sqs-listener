@@ -35,9 +35,6 @@ class SqsListener(object):
         :param queue: (str) name of queue to listen to
         :param kwargs: options for fine tuning. see below
         """
-        if (not os.environ.get('AWS_ACCOUNT_ID', None) and
-                not ('iam-role' == boto3.Session().get_credentials().method)):
-            raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
         self._queue_name = queue
         self._poll_interval = kwargs.get("interval", 60)
         self._queue_visibility_timeout = kwargs.get('visibility_timeout', '600')
