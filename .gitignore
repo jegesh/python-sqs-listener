@@ -1,4 +1,6 @@
 venv
+.mypy_cache
+.vscode
 .idea
 *.pyc
 .DS_Store
