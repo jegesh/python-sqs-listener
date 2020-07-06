@@ -45,32 +45,36 @@ class SqsLauncher(object):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
         # new session for each instantiation
         self._session = boto3.session.Session()
+        self._resource = self._session.resource('sqs')
         self._client = self._session.client('sqs')
 
         self._queue_name = queue
         self._queue_url = queue_url
+        self._queue = None
         if not queue_url:
-            queues = self._client.list_queues(QueueNamePrefix=self._queue_name)
+            queues = self._resource.queues.filter(QueueNamePrefix=self._queue_name)
             exists = False
-            for q in queues.get('QueueUrls', []):
-                qname = q.split('/')[-1]
+            for q in queues:
+                qname = q.url.split('/')[-1]
                 if qname == self._queue_name:
                     exists = True
-                    self._queue_url = q
-
+                    self._queue_url = q.url
+                    self._queue = q
             if not exists:
                 if create_queue:
-                    q = self._client.create_queue(
+                    q = self._resource.create_queue(
                         QueueName=self._queue_name,
                         Attributes={
-                            'VisibilityTimeout': visibility_timeout  # 10 minutes
-                        }
+                            'VisibilityTimeout': visibility_timeout,  # 10 minutes
+                        },
                     )
-                    self._queue_url = q['QueueUrl']
+                    self._queue_url = q.url
+                    self._queue = q
                 else:
                     raise ValueError('No queue found with name ' + self._queue_name)
         else:
             self._queue_name = self._get_queue_name_from_url(queue_url)
+            self._queue = self._resource.Queue(queue_url)
 
     def launch_message(self, message, **kwargs):
         """
@@ -81,8 +85,7 @@ class SqsLauncher(object):
         :return: (dict) the message response from SQS
         """
         sqs_logger.info("Sending message to queue " + self._queue_name)
-        return self._client.send_message(
-            QueueUrl=self._queue_url,
+        return self._queue.send_message(
             MessageBody=json.dumps(message),
             **kwargs,
         )

@@ -31,7 +31,7 @@ Here is a basic code sample:
 
 **Standard Listener**
 
-::
+.. code:: python
 
     from sqs_listener import SqsListener
 
@@ -44,7 +44,7 @@ Here is a basic code sample:
 
 **Error Listener**
 
-::
+.. code:: python
 
     from sqs_listener import SqsListener
     class MyErrorListener(SqsListener):
@@ -75,7 +75,7 @@ Running as a Daemon
 
 | Typically, in a production environment, you'll want to listen to an SQS queue with a daemonized process.
   The simplest way to do this is by running the listener in a detached process.  On a typical Linux distribution it might look   like this:
-|  
+|
   ``nohup python my_listener.py > listener.log &``
 |  And saving the resulting process id for later (for stopping the listener via the ``kill`` command).
 |
@@ -94,7 +94,7 @@ Logging
 |
 | For instance:
 
-::
+.. code:: python
 
     logger = logging.getLogger('sqs_listener')
     logger.setLevel(logging.INFO)
@@ -111,7 +111,7 @@ Logging
 |
 | Or to a log file:
 
-::
+.. code:: python
 
     logger = logging.getLogger('sqs_listener')
     logger.setLevel(logging.INFO)
@@ -140,7 +140,7 @@ Sending messages
 
 **Launcher Example**
 
-::
+.. code:: python
 
     from sqs_launcher import SqsLauncher
 
