@@ -148,7 +148,6 @@ class SqsListener(object):
             if 'Messages' in messages:
 
                 sqs_logger.debug(messages)
-                continue
                 sqs_logger.info("{} messages received".format(len(messages['Messages'])))
                 for m in messages['Messages']:
                     receipt_handle = m['ReceiptHandle']
