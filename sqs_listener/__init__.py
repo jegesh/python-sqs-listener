@@ -39,7 +39,7 @@ class SqsListener(object):
         aws_access_key = kwargs.get('aws_access_key', '')
         aws_secret_key = kwargs.get('aws_secret_key', '')
 
-        if all(aws_access_key, aws_secret_key):
+        if all([aws_access_key, aws_secret_key]):
             boto3_session = boto3.Session(
                 aws_access_key_id=aws_access_key,
                 aws_secret_access_key=aws_secret_key,
