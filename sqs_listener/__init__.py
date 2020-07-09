@@ -128,7 +128,7 @@ class SqsListener(object):
         while True:
             # calling with `WaitTimeSecconds` of zero show the same behavior as
             # not specifiying a wait time, ie: short polling
-            messages = self._queue.receive_message(
+            messages = self._queue.receive_messages(
                 AttributeNames=self._attribute_names,
                 MessageAttributeNames=self._message_attribute_names,
                 WaitTimeSeconds=self._wait_time,
