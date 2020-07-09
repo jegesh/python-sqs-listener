@@ -38,14 +38,14 @@ class SqsListener(object):
         """
         aws_access_key = kwargs.get('aws_access_key', '')
         aws_secret_key = kwargs.get('aws_secret_key', '')
-
+        self._aws_account_id = os.environ.get('AWS_ACCOUNT_ID', None)
         if all([aws_access_key, aws_secret_key]):
             boto3_session = boto3.Session(
                 aws_access_key_id=aws_access_key,
                 aws_secret_access_key=aws_secret_key,
             )
         else:
-            if (not os.environ.get('AWS_ACCOUNT_ID', None) and
+            if (not self._aws_account_id and
                     not ('iam-role' == boto3.Session().get_credentials().method)):
                 raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
         self._queue = None         # The SQS Queue resource
@@ -83,6 +83,7 @@ class SqsListener(object):
         for q in queues:
             qname = q.url.split('/')[-1]
             if qname == self._queue_name:
+                self._queue_url = q.url
                 main_queue_exists = True
             if self._error_queue_name and qname == self._error_queue_name:
                 error_queue_exists = True
@@ -114,10 +115,15 @@ class SqsListener(object):
             )
 
         if self._queue_url is None:
-            qs = sqs.get_queue_by_name(
-                QueueName=self._queue_name,
-                QueueOwnerAWSAccountId=os.environ.get('AWS_ACCOUNT_ID', None),
-            )
+            if self._aws_account_id:
+                qs = sqs.get_queue_by_name(
+                    QueueName=self._queue_name,
+                    QueueOwnerAWSAccountId=self._aws_account_id,
+                )
+            else:
+                qs = sqs.get_queue_by_name(
+                    QueueName=self._queue_name,
+                )
             self._queue_url = qs.url
         self._queue = sqs.Queue(self._queue_url)
         return sqs
@@ -138,13 +144,15 @@ class SqsListener(object):
                 time.sleep(self._poll_interval)
                 continue
             sqs_logger.debug(messages)
-            sqs_logger.info("{} messages received".format(len(messages['Messages'])))
+            sqs_logger.info("{} messages received".format(len(messages)))
             for m in messages:
                 receipt_handle = m.receipt_handle
                 m_body = m.body
                 message_attribs = m.message_attributes
                 attribs = m.attributes
-                # catch problems with malformed JSON, usually a result of someone writing poor JSON directly in the AWS console
+                # catch problems with malformed JSON, usually a result
+                # of someone writing poor JSON directly in the AWS
+                # console
                 try:
                     params_dict = json.loads(m_body)
                 except:
@@ -162,7 +170,6 @@ class SqsListener(object):
                     sqs_logger.exception(ex)
                     if self._error_queue_name:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-
                         sqs_logger.info( "Pushing exception to error queue")
                         error_launcher = SqsLauncher(queue=self._error_queue_name, create_queue=True)
                         error_launcher.launch_message(
