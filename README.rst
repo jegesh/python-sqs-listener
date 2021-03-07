@@ -68,14 +68,14 @@ Here is a basic code sample:
 - attribute_names (list) - attributes by which to filter messages (see boto docs for difference between these two)
 - region_name (str) - AWS region name (defaults to ``us-east-1``)
 - queue_url (str) - overrides ``queue`` parameter. Mostly useful for getting around `this bug <https://github.com/aws/aws-cli/issues/1715>`_ in the boto library
-
+- deserializer (function str -> dict) - Deserialization function that will be used to parse the message body. Set to python's ``json.loads`` by default.
 
 Running as a Daemon
 ~~~~~~~~~~~~~~~~~~~
 
 | Typically, in a production environment, you'll want to listen to an SQS queue with a daemonized process.
   The simplest way to do this is by running the listener in a detached process.  On a typical Linux distribution it might look   like this:
-|  
+|
   ``nohup python my_listener.py > listener.log &``
 |  And saving the resulting process id for later (for stopping the listener via the ``kill`` command).
 |
@@ -131,7 +131,9 @@ Sending messages
 | In order to send a message, instantiate an ``SqsLauncher`` with the name of the queue.  By default an exception will
   be raised if the queue doesn't exist, but it can be created automatically if the ``create_queue`` parameter is
   set to true.  In such a case, there's also an option to set the newly created queue's ``VisibilityTimeout`` via the
-  third parameter.
+  third parameter. It is possible to provide a ``serializer`` function if custom types need to be sent. This function
+  expects a dict object and should return a string. If not provided, python's `json.dumps` is used by default.
+
 |
 | After instantiation, use the ``launch_message()`` method to send the message.  The message body should be a ``dict``,
   and additional kwargs can be specified as stated in the `SQS docs
