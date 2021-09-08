@@ -38,7 +38,7 @@ class SqsLauncher(object):
                                     to finish execution. See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
                                     for more information
         """
-        if not any(queue, queue_url):
+        if not any((queue, queue_url)):
             raise ValueError('Either `queue` or `queue_url` should be provided.')
         if (not os.environ.get('AWS_ACCOUNT_ID', None) and
                 not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role'])):
@@ -84,7 +84,7 @@ class SqsLauncher(object):
         return self._client.send_message(
             QueueUrl=self._queue_url,
             MessageBody=json.dumps(message),
-            **kwargs,
+            **kwargs
         )
 
     def _get_queue_name_from_url(self, url):

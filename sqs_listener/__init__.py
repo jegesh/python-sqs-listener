@@ -44,6 +44,7 @@ class SqsListener(object):
                 aws_secret_access_key=aws_secret_key
             )
         else:
+            boto3_session = None
             if (not os.environ.get('AWS_ACCOUNT_ID', None) and
                     not ('iam-role' == boto3.Session().get_credentials().method)):
                 raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
