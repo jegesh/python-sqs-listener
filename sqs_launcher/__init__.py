@@ -27,7 +27,7 @@ sqs_logger = logging.getLogger('sqs_listener')
 
 class SqsLauncher(object):
 
-    def __init__(self, queue=None, queue_url=None, create_queue=False, visibility_timeout='600'):
+    def __init__(self, queue=None, queue_url=None, create_queue=False, visibility_timeout='600', **kwargs):
         """
         :param queue: (str) name of queue to listen to
         :param queue_url: (str) url of queue to listen to
@@ -37,6 +37,7 @@ class SqsLauncher(object):
                                     Typically this should reflect the maximum amount of time your handler method will take
                                     to finish execution. See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
                                     for more information
+        :param kwargs: options for fine tuning. see below
         """
         if not any((queue, queue_url)):
             raise ValueError('Either `queue` or `queue_url` should be provided.')
@@ -45,10 +46,15 @@ class SqsLauncher(object):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
         # new session for each instantiation
         self._session = boto3.session.Session()
-        self._client = self._session.client('sqs')
 
         self._queue_name = queue
         self._queue_url = queue_url
+        self._endpoint_name = kwargs.get('endpoint_name', None)
+        self._region_name = kwargs.get('region_name', self._session.region_name)
+        if self._region_name and self._endpoint_name:
+            self._client = self._session.client('sqs', region_name=self._region_name, endpoint_url=self._endpoint_name)
+        else:
+            self._client = self._session.client('sqs')
         if not queue_url:
             queues = self._client.list_queues(QueueNamePrefix=self._queue_name)
             exists = False
