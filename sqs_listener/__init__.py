@@ -20,12 +20,46 @@ import os
 import sys
 from sqs_launcher import SqsLauncher
 from abc import ABCMeta, abstractmethod
+from queue import Queue
+from threading import Thread
+
+import sched
+
 
 # ================
 # start class
 # ================
 
 sqs_logger = logging.getLogger('sqs_listener')
+
+class HeartbeatVisibilityRunner(Thread):
+
+    def __init__(self, thread_queue, client, queue_url, receipt_handle, visibility_timeout=90, reset_interval=60):
+        Thread.__init__(self)
+        self.queue = thread_queue
+        self.receipt_handle = receipt_handle
+        self.reset_interval = reset_interval
+        self.visibility_timeout = visibility_timeout
+        self.client = client
+        self.queue_url = queue_url
+
+    def run(self):
+        while True:
+            try:
+                # if we receive anything, it's over.
+                anything = self.queue.get(block=False)
+                self.queue.task_done()
+                return
+            except Queue.empty
+                self.client.change_message_visibility(
+                    QueueUrl=self.queue_url,
+                    ReceiptHandle=receipt_handle,
+                    VisibilityTimeout=90
+                )
+
+            # Ensure it runs every 60s, regardless of how long above call took
+            time.sleep(self.reset_interval - ((time.time() - starttime) % self.reset_interval))   
+
 
 class SqsListener(object):
     __metaclass__ = ABCMeta
@@ -166,6 +200,10 @@ class SqsListener(object):
                         message_attribs = m['MessageAttributes']
                     if 'Attributes' in m:
                         attribs = m['Attributes']
+                    
+                    thread_queue = Queue()
+                    HeartbeatVisibilityRunner(thread_queue, self._client self._queue_url, receipt_handle, 90, 60)
+                    
                     try:
                         if self._force_delete:
                             self._client.delete_message(
@@ -193,6 +231,9 @@ class SqsListener(object):
                                     'error_message': str(ex.args)
                                 }
                             )
+                    
+                    thread_queue.put("anything")
+                    thread_queue.join()
 
             else:
                 time.sleep(self._poll_interval)
