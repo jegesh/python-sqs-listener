@@ -86,6 +86,8 @@ class Daemon:
             pf.close()
         except IOError:
             pid = None
+        except ValueError:
+            pid = None
 
         if pid:
             message = "pidfile %s already exist. Daemon already running?\n"
@@ -112,6 +114,8 @@ class Daemon:
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
+            pid = None
+        except ValueError:
             pid = None
 
         if not pid:
