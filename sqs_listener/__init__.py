@@ -6,6 +6,7 @@ Created December 21st, 2016
 @version: 0.2.3
 @license: Apache
 """
+from typing import Callable
 
 # ================
 # start imports
@@ -61,6 +62,7 @@ class SqsListener(object):
         self._endpoint_name = kwargs.get('endpoint_name', None)
         self._wait_time = kwargs.get('wait_time', 0)
         self._max_number_of_messages = kwargs.get('max_number_of_messages', 1)
+        self._run_while_idle = kwargs.get('run_while_idle', None)
 
         # must come last
         if boto3_session:
@@ -90,7 +92,7 @@ class SqsListener(object):
                     errorQueueExists = True
 
 
-        # create queue if necessary. 
+        # create queue if necessary.
         # creation is idempotent, no harm in calling on a queue if it already exists.
         if self._queue_url is None:
             if not mainQueueExists:
@@ -195,6 +197,8 @@ class SqsListener(object):
                             )
 
             else:
+                if isinstance(self._run_while_idle, Callable):
+                    self._run_while_idle()
                 time.sleep(self._poll_interval)
 
     def listen(self):
