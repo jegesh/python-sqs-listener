@@ -69,6 +69,8 @@ Here is a basic code sample:
 - region_name (str) - AWS region name (defaults to ``us-east-1``)
 - queue_url (str) - overrides ``queue`` parameter. Mostly useful for getting around `this bug <https://github.com/aws/aws-cli/issues/1715>`_ in the boto library
 - deserializer (function str -> dict) - Deserialization function that will be used to parse the message body. Set to python's ``json.loads`` by default.
+- aws_access_key, aws_secret_key (str) - for manually providing AWS credentials
+
 
 Running as a Daemon
 ~~~~~~~~~~~~~~~~~~~
@@ -99,8 +101,7 @@ Logging
     logger = logging.getLogger('sqs_listener')
     logger.setLevel(logging.INFO)
 
-    sh = logging.StreamHandler(sys.stdout)
-    sh.setLevel(logging.INFO)
+    sh = logging.StreamHandler()
 
     formatstr = '[%(asctime)s - %(name)s - %(levelname)s]  %(message)s'
     formatter = logging.Formatter(formatstr)

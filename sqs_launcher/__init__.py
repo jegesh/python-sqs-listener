@@ -3,7 +3,7 @@ class for running sqs message launcher
 
 Created December 22nd, 2016
 @author: Yaakov Gesher
-@version: 0.1.0
+@version: 0.22.0
 @license: Apache
 """
 
@@ -40,9 +40,13 @@ class SqsLauncher(object):
         """
         if not any([queue, queue_url]):
             raise ValueError('Either `queue` or `queue_url` should be provided.')
-        if (not os.environ.get('AWS_ACCOUNT_ID', None) and
-                not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role'])):
+        
+        if (
+            not os.environ.get('AWS_ACCOUNT_ID', None) and 
+            not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role', 'assume-role-with-web-identity'])
+        ):
             raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
+        
         # new session for each instantiation
         self._session = boto3.session.Session()
         self._client = self._session.client('sqs')
