@@ -1,6 +1,4 @@
 """
-script for running sqs listener
-
 Created December 21st, 2016
 @author: Yaakov Gesher
 @version: 0.9.0
@@ -11,21 +9,24 @@ Created December 21st, 2016
 # start imports
 # ================
 
-import boto3
-import boto3.session
 import json
-import time
 import logging
 import os
 import sys
-from sqs_launcher import SqsLauncher
+import time
 from abc import ABCMeta, abstractmethod
+
+import boto3
+import boto3.session
+
+from sqs_launcher import SqsLauncher
 
 # ================
 # start class
 # ================
 
 sqs_logger = logging.getLogger('sqs_listener')
+
 
 class SqsListener(object):
     __metaclass__ = ABCMeta
@@ -47,8 +48,8 @@ class SqsListener(object):
         else:
             boto3_session = None
             if (
-                not os.environ.get('AWS_ACCOUNT_ID', None) and 
-                not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role', 'assume-role-with-web-identity'])
+                    not os.environ.get('AWS_ACCOUNT_ID', None) and
+                    not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role', 'assume-role-with-web-identity'])
             ):
                 raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
 
@@ -74,7 +75,6 @@ class SqsListener(object):
         self._region_name = kwargs.get('region_name', self._session.region_name)
         self._client = self._initialize_client()
 
-
     def _initialize_client(self):
         # new session for each instantiation
         ssl = True
@@ -83,31 +83,30 @@ class SqsListener(object):
 
         sqs = self._session.client('sqs', region_name=self._region_name, endpoint_url=self._endpoint_name, use_ssl=ssl)
         queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
-        mainQueueExists = False
-        errorQueueExists = False
+        main_queue_exists = False
+        error_queue_exists = False
         if 'QueueUrls' in queues:
             for q in queues['QueueUrls']:
                 qname = q.split('/')[-1]
                 if qname == self._queue_name:
-                    mainQueueExists = True
+                    main_queue_exists = True
                 if self._error_queue_name and qname == self._error_queue_name:
-                    errorQueueExists = True
-
+                    error_queue_exists = True
 
         # create queue if necessary.
         # creation is idempotent, no harm in calling on a queue if it already exists.
         if self._queue_url is None:
-            if not mainQueueExists:
+            if not main_queue_exists:
                 sqs_logger.warning("main queue not found, creating now")
 
                 # is this a fifo queue?
                 if self._queue_name.endswith(".fifo"):
-                    fifoQueue="true"
+                    fifo_queue = "true"
                     q = sqs.create_queue(
                         QueueName=self._queue_name,
                         Attributes={
                             'VisibilityTimeout': self._queue_visibility_timeout,  # 10 minutes
-                            'FifoQueue':fifoQueue
+                            'FifoQueue': fifo_queue
                         }
                     )
                 else:
@@ -120,7 +119,7 @@ class SqsListener(object):
                     )
                 self._queue_url = q['QueueUrl']
 
-        if self._error_queue_name and not errorQueueExists:
+        if self._error_queue_name and not error_queue_exists:
             sqs_logger.warning("error queue not found, creating now")
             q = sqs.create_queue(
                 QueueName=self._error_queue_name,
@@ -162,9 +161,8 @@ class SqsListener(object):
 
                     try:
                         deserialized = self._deserializer(m_body)
-                    except Exception as e:
-                        sqs_logger.error("Unable to parse message")
-                        sqs_logger.exception(e)
+                    except:
+                        sqs_logger.exception("Unable to parse message")
                         continue
 
                     if 'MessageAttributes' in m:
@@ -185,12 +183,11 @@ class SqsListener(object):
                                 ReceiptHandle=receipt_handle
                             )
                     except Exception as ex:
-                        # need exception logtype to log stack trace
                         sqs_logger.exception(ex)
                         if self._error_queue_name:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
 
-                            sqs_logger.info( "Pushing exception to error queue")
+                            sqs_logger.info("Pushing exception to error queue")
                             error_launcher = SqsLauncher(queue=self._error_queue_name, create_queue=True)
                             error_launcher.launch_message(
                                 {
@@ -203,9 +200,9 @@ class SqsListener(object):
                 time.sleep(self._poll_interval)
 
     def listen(self):
-        sqs_logger.info( "Listening to queue " + self._queue_name)
+        sqs_logger.info("Listening to queue " + self._queue_name)
         if self._error_queue_name:
-            sqs_logger.info( "Using error queue " + self._error_queue_name)
+            sqs_logger.info("Using error queue " + self._error_queue_name)
 
         self._start_listening()
 
