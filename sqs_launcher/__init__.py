@@ -3,7 +3,7 @@ class for running sqs message launcher
 
 Created December 22nd, 2016
 @author: Yaakov Gesher
-@version: 0.22.0
+@version: 0.9.0
 @license: Apache
 """
 

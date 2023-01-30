@@ -3,7 +3,7 @@ script for running sqs listener
 
 Created December 21st, 2016
 @author: Yaakov Gesher
-@version: 0.2.3
+@version: 0.9.0
 @license: Apache
 """
 
