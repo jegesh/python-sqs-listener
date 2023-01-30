@@ -3,7 +3,7 @@ class for running sqs message launcher
 
 Created December 22nd, 2016
 @author: Yaakov Gesher
-@version: 0.1.0
+@version: 0.22.0
 @license: Apache
 """
 
@@ -27,7 +27,7 @@ sqs_logger = logging.getLogger('sqs_listener')
 
 class SqsLauncher(object):
 
-    def __init__(self, queue=None, queue_url=None, create_queue=False, visibility_timeout='600'):
+    def __init__(self, queue=None, queue_url=None, create_queue=False, visibility_timeout='600', serializer=json.dumps):
         """
         :param queue: (str) name of queue to listen to
         :param queue_url: (str) url of queue to listen to
@@ -38,7 +38,7 @@ class SqsLauncher(object):
                                     to finish execution. See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
                                     for more information
         """
-        if not any((queue, queue_url)):
+        if not any([queue, queue_url]):
             raise ValueError('Either `queue` or `queue_url` should be provided.')
         
         if (
@@ -53,6 +53,8 @@ class SqsLauncher(object):
 
         self._queue_name = queue
         self._queue_url = queue_url
+        self._serializer = serializer
+
         if not queue_url:
             queues = self._client.list_queues(QueueNamePrefix=self._queue_name)
             exists = False
@@ -87,7 +89,7 @@ class SqsLauncher(object):
         sqs_logger.info("Sending message to queue " + self._queue_name)
         return self._client.send_message(
             QueueUrl=self._queue_url,
-            MessageBody=json.dumps(message),
+            MessageBody=self._serializer(message),
             **kwargs
         )
 

@@ -38,6 +38,7 @@ class SqsListener(object):
         aws_access_key = kwargs.get('aws_access_key', '')
         aws_secret_key = kwargs.get('aws_secret_key', '')
 
+        boto3_session = None
         if len(aws_access_key) != 0 and len(aws_secret_key) != 0:
             boto3_session = boto3.Session(
                 aws_access_key_id=aws_access_key,
@@ -63,6 +64,7 @@ class SqsListener(object):
         self._endpoint_name = kwargs.get('endpoint_name', None)
         self._wait_time = kwargs.get('wait_time', 0)
         self._max_number_of_messages = kwargs.get('max_number_of_messages', 1)
+        self._deserializer = kwargs.get("deserializer", json.loads)
 
         # must come last
         if boto3_session:
@@ -92,7 +94,7 @@ class SqsListener(object):
                     errorQueueExists = True
 
 
-        # create queue if necessary. 
+        # create queue if necessary.
         # creation is idempotent, no harm in calling on a queue if it already exists.
         if self._queue_url is None:
             if not mainQueueExists:
@@ -158,12 +160,13 @@ class SqsListener(object):
                     message_attribs = None
                     attribs = None
 
-                    # catch problems with malformed JSON, usually a result of someone writing poor JSON directly in the AWS console
                     try:
-                        params_dict = json.loads(m_body)
-                    except:
-                        sqs_logger.warning("Unable to parse message - JSON is not formatted properly")
+                        deserialized = self._deserializer(m_body)
+                    except Exception as e:
+                        sqs_logger.error("Unable to parse message")
+                        sqs_logger.exception(e)
                         continue
+
                     if 'MessageAttributes' in m:
                         message_attribs = m['MessageAttributes']
                     if 'Attributes' in m:
@@ -174,9 +177,9 @@ class SqsListener(object):
                                 QueueUrl=self._queue_url,
                                 ReceiptHandle=receipt_handle
                             )
-                            self.handle_message(params_dict, message_attribs, attribs)
+                            self.handle_message(deserialized, message_attribs, attribs)
                         else:
-                            self.handle_message(params_dict, message_attribs, attribs)
+                            self.handle_message(deserialized, message_attribs, attribs)
                             self._client.delete_message(
                                 QueueUrl=self._queue_url,
                                 ReceiptHandle=receipt_handle
