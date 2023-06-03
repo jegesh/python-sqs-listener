@@ -66,6 +66,7 @@ class SqsListener(object):
         self._wait_time = kwargs.get('wait_time', 0)
         self._max_number_of_messages = kwargs.get('max_number_of_messages', 1)
         self._deserializer = kwargs.get("deserializer", json.loads)
+        self.should_run = False
 
         # must come last
         if boto3_session:
@@ -138,8 +139,9 @@ class SqsListener(object):
         return sqs
 
     def _start_listening(self):
+        self.should_run = True
         # TODO consider incorporating output processing from here: https://github.com/debrouwere/sqs-antenna/blob/master/antenna/__init__.py
-        while True:
+        while self.should_run:
             # calling with WaitTimeSecconds of zero show the same behavior as
             # not specifiying a wait time, ie: short polling
             messages = self._client.receive_message(
@@ -205,7 +207,8 @@ class SqsListener(object):
             sqs_logger.info("Using error queue " + self._error_queue_name)
 
         self._start_listening()
-
+    def stop(self):
+        self.should_run = False
     def _prepare_logger(self):
         logger = logging.getLogger('eg_daemon')
         logger.setLevel(logging.INFO)
