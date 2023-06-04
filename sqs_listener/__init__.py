@@ -200,8 +200,11 @@ class SqsListener(object):
                             )
 
             else:
+                if not self._should_listen:
+                    break
                 time.sleep(self._poll_interval)
         sqs_logger.info("client is not in listening state, stopping sqs listener")
+
     def listen(self):
         self._should_listen = True
         sqs_logger.info("Listening to queue " + self._queue_name)
@@ -209,8 +212,10 @@ class SqsListener(object):
             sqs_logger.info("Using error queue " + self._error_queue_name)
 
         self._start_listening()
+
     def stop(self):
         self._should_listen = False
+
     def _prepare_logger(self):
         logger = logging.getLogger('eg_daemon')
         logger.setLevel(logging.INFO)
