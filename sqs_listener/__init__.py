@@ -18,6 +18,7 @@ from abc import ABCMeta, abstractmethod
 
 import boto3
 import boto3.session
+from botocore.exceptions import SSOTokenLoadError
 
 from sqs_launcher import SqsLauncher
 
@@ -82,7 +83,11 @@ class SqsListener(object):
             ssl = False
 
         sqs = self._session.client('sqs', region_name=self._region_name, endpoint_url=self._endpoint_name, use_ssl=ssl)
-        queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
+        try:
+            queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
+        except SSOTokenLoadError:
+            raise EnvironmentError('Error loading SSO Token. Reauthenticate via aws sso login.')
+
         main_queue_exists = False
         error_queue_exists = False
         if 'QueueUrls' in queues:
