@@ -18,6 +18,7 @@ from abc import ABCMeta, abstractmethod
 
 import boto3
 import boto3.session
+from botocore.exceptions import SSOTokenLoadError
 
 from sqs_launcher import SqsLauncher
 
@@ -49,7 +50,7 @@ class SqsListener(object):
             boto3_session = None
             if (
                     not os.environ.get('AWS_ACCOUNT_ID', None) and
-                    not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role', 'assume-role-with-web-identity'])
+                    not (boto3.Session().get_credentials().method in ['sso', 'iam-role', 'assume-role', 'assume-role-with-web-identity'])
             ):
                 raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
 
@@ -82,7 +83,11 @@ class SqsListener(object):
             ssl = False
 
         sqs = self._session.client('sqs', region_name=self._region_name, endpoint_url=self._endpoint_name, use_ssl=ssl)
-        queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
+        try:
+            queues = sqs.list_queues(QueueNamePrefix=self._queue_name)
+        except SSOTokenLoadError:
+            raise EnvironmentError('Error loading SSO Token. Reauthenticate via aws sso login.')
+
         main_queue_exists = False
         error_queue_exists = False
         if 'QueueUrls' in queues:
