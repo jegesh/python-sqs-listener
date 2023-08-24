@@ -142,9 +142,15 @@ class SqsListener(object):
             self._queue_url = qs['QueueUrl']
         return sqs
 
+    def _condition_to_listening(self):
+        """
+            Return condition to run listening process.
+        """
+        return True
+    
     def _start_listening(self):
         # TODO consider incorporating output processing from here: https://github.com/debrouwere/sqs-antenna/blob/master/antenna/__init__.py
-        while True:
+        while self._condition_to_listening():
             # calling with WaitTimeSecconds of zero show the same behavior as
             # not specifiying a wait time, ie: short polling
             messages = self._client.receive_message(
