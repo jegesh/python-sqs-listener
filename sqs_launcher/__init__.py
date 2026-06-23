@@ -41,11 +41,14 @@ class SqsLauncher(object):
         if not any([queue, queue_url]):
             raise ValueError('Either `queue` or `queue_url` should be provided.')
         
-        if (
-            not os.environ.get('AWS_ACCOUNT_ID', None) and 
-            not (boto3.Session().get_credentials().method in ['iam-role', 'assume-role', 'assume-role-with-web-identity'])
-        ):
-            raise EnvironmentError('Environment variable `AWS_ACCOUNT_ID` not set and no role found.')
+        # Accept credentials from any provider boto3 can resolve (env vars,
+        # shared credentials file, config file, container/instance roles, SSO,
+        # assumed roles, ...). AWS_ACCOUNT_ID is only needed as a fallback when
+        # no credentials are discoverable. See issue #62.
+        if not os.environ.get('AWS_ACCOUNT_ID', None) and boto3.Session().get_credentials() is None:
+            raise EnvironmentError(
+                'No AWS credentials found and environment variable `AWS_ACCOUNT_ID` is not set.'
+            )
         
         # new session for each instantiation
         self._session = boto3.session.Session()
@@ -56,15 +59,12 @@ class SqsLauncher(object):
         self._serializer = serializer
 
         if not queue_url:
-            queues = self._client.list_queues(QueueNamePrefix=self._queue_name)
-            exists = False
-            for q in queues.get('QueueUrls', []):
-                qname = q.split('/')[-1]
-                if qname == self._queue_name:
-                    exists = True
-                    self._queue_url = q
-
-            if not exists:
+            # Resolve the queue by its exact name instead of a name prefix, so a
+            # queue is not confused with another whose name it is a prefix of.
+            # See issues #43 and #61.
+            try:
+                self._queue_url = self._client.get_queue_url(QueueName=self._queue_name)['QueueUrl']
+            except self._client.exceptions.QueueDoesNotExist:
                 if create_queue:
                     q = self._client.create_queue(
                         QueueName=self._queue_name,
